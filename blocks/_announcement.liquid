@@ -1,0 +1,182 @@
+{% comment %}
+  ==========================================================
+  ATHLON ANNOUNCEMENT BAR — PREMIUM & SUBTLE (Sem Linha Verde)
+  ==========================================================
+{% endcomment %}
+
+<div class="ann-bar">
+  <div class="ann-bar__inner">
+
+    <a href="{{ routes.root_url }}/pages/descontos" class="ann-bar__link">
+      <span class="ann-bar__pill">
+        {{ section.settings.pill_1 | default: 'Frete grátis' }}
+      </span>
+
+      <span class="ann-bar__text">
+        {{ section.settings.text_1 | default: 'Acima de R$259,90' }}
+      </span>
+    </a>
+
+    <span class="ann-bar__sep ann-bar__sm">|</span>
+
+    <a href="{{ routes.root_url }}/pages/descontos" class="ann-bar__link ann-bar__sm">
+      <span class="ann-bar__pill">
+        {{ section.settings.pill_2 | default: 'Cupom' }}
+      </span>
+
+      <span class="ann-bar__text">
+        {{ section.settings.text_2 | default: 'ATHLON15 · 15% OFF' }}
+      </span>
+    </a>
+
+    <span class="ann-bar__sep ann-bar__md">|</span>
+
+    <a
+      href="{{ routes.root_url }}/pages/descontos"
+      class="ann-bar__link ann-bar__link--cta ann-bar__md"
+    >
+      {{ section.settings.text_3 | default: 'Ver todos os cupons →' }}
+    </a>
+
+  </div>
+</div>
+
+<style>
+  /* ========================================
+     ANNOUNCEMENT BAR
+  ======================================== */
+
+  #shopify-section-{{ section.id }} {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    z-index: 99999;
+    
+    /* Ajustei sutilmente a altura para respirar melhor */
+    height: 34px; 
+
+    /* Fundo preto para integrar com o tema Dark e não chamar tanta atenção */
+    background: #050505; 
+    border-bottom: 1px solid rgba(255,255,255,.05);
+  }
+
+  #shopify-section-{{ section.id }} .ann-bar__inner {
+    height: 100%;
+    max-width: 1440px;
+    margin: 0 auto;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 24px;
+    padding: 0 24px;
+
+    /* Fonte do texto principal */
+    font-size: 11px;
+    font-weight: 500;
+    color: #000000; 
+    letter-spacing: 0.02em;
+  }
+
+  #shopify-section-{{ section.id }} .ann-bar__link {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    color: inherit;
+    text-decoration: none;
+    white-space: nowrap;
+    transition: color 0.3s ease;
+  }
+
+  /* Efeito luminoso suave ao passar o mouse */
+  #shopify-section-{{ section.id }} .ann-bar__link:hover {
+    color: rgba(0, 161, 83, 0.85);
+  }
+
+  #shopify-section-{{ section.id }} .ann-bar__pill {
+    /* Estilo neon premium: borda sutil, fundo quase invisível e texto aceso */
+    background: rgba(0, 230, 118, 0.05);
+    color: #00e676; /* Verde Neon Athlon */
+    border: 1px solid rgba(0, 230, 118, 0.2);
+    
+    padding: 3px 10px;
+    border-radius: 50px;
+    
+    font-size: 9px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: .12em;
+  }
+
+  #shopify-section-{{ section.id }} .ann-bar__sep {
+    opacity: .15;
+    font-weight: 300;
+  }
+
+  @media screen and (max-width: 990px) {
+    #shopify-section-{{ section.id }} {
+      height: 40px;
+    }
+
+    #shopify-section-{{ section.id }} .ann-bar__inner {
+      gap: 12px;
+      font-size: 9.5px;
+      padding: 0 14px;
+    }
+
+    #shopify-section-{{ section.id }} .ann-bar__pill {
+      padding: 3px 8px;
+      font-size: 8px;
+    }
+
+    #shopify-section-{{ section.id }} .ann-bar__md {
+      display: none;
+    }
+  }
+</style>
+
+{% schema %}
+{
+  "name": "Announcement bar",
+  "tag": "section",
+  "class": "athlon-announcement-bar",
+  "settings": [
+    {
+      "type": "text",
+      "id": "pill_1",
+      "label": "Pill 1",
+      "default": "Frete grátis"
+    },
+    {
+      "type": "text",
+      "id": "text_1",
+      "label": "Texto 1",
+      "default": "Acima de R$259,90"
+    },
+    {
+      "type": "text",
+      "id": "pill_2",
+      "label": "Pill 2",
+      "default": "Cupom"
+    },
+    {
+      "type": "text",
+      "id": "text_2",
+      "label": "Texto 2",
+      "default": "ATHLON15 · 15% OFF"
+    },
+    {
+      "type": "text",
+      "id": "text_3",
+      "label": "Texto CTA",
+      "default": "Ver todos os cupons →"
+    }
+  ],
+  "presets": [
+    {
+      "name": "Announcement bar"
+    }
+  ]
+}
+{% endschema %}

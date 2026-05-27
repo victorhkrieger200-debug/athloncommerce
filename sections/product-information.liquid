@@ -1,0 +1,337 @@
+<script type="application/ld+json">
+  {{ closest.product | structured_data }}
+</script>
+
+{% liquid
+  assign product = closest.product | default: product
+  assign vendor_name = product.vendor
+  if vendor_name == blank and request.design_mode
+    assign vendor_name = "Athlon Supplements"
+  endif
+%}
+
+{% capture media_gallery %}
+  {%- content_for 'block', type: '_product-media-gallery', id: 'media-gallery', closest.product: product -%}
+{% endcapture %}
+
+{% capture product_details %}
+  {% content_for 'block', type: '_product-details', id: 'product-details', closest.product: product %}
+{% endcapture %}
+
+{% capture additional_blocks %}
+  {% content_for 'blocks' %}
+{% endcapture %}
+
+<div class="athlon-cyber-engine" id="AthlonProductSection-{{ section.id }}" data-vendor="{{ vendor_name }}">
+  {% render 'product-information-content',
+    product_media_size: product.media.size,
+    section_id: section.id,
+    settings: section.settings,
+    media_gallery: media_gallery,
+    product_details: product_details,
+    additional_blocks: additional_blocks
+  %}
+</div>
+
+{% if section.settings.enable_sticky_add_to_cart %}
+  {% liquid
+    assign current_variant = product.selected_or_first_available_variant
+    assign initial_quantity = current_variant.quantity_rule.min | default: 1
+  %}
+
+  <sticky-add-to-cart
+    class="athlon-app-dock"
+    data-variant-available="{{ current_variant.available }}"
+    data-product-id="{{ product.id }}"
+    data-current-variant-id="{{ current_variant.id }}"
+    data-initial-quantity="{{ initial_quantity }}"
+  >
+    <div class="app-dock-glass" data-stuck="false">
+      <div class="dock-meta">
+        <p class="dock-title">{{ product.title | escape }}</p>
+        <div class="dock-price-zone">
+          {% render 'price', product_resource: product, show_sale_price_first: true %}
+        </div>
+      </div>
+      <button type="button" class="dock-action-btn" id="StickySubmitBtn" {% unless current_variant.available %}disabled{% endunless %}>
+        <span class="btn-text">
+          {%- if current_variant.available -%}GARANTIR AGORA{%- else -%}ESGOTADO{%- endif -%}
+        </span>
+        <div class="btn-sweep"></div>
+      </button>
+    </div>
+  </sticky-add-to-cart>
+{% endif %}
+
+<script>
+  document.addEventListener('DOMContentLoaded', () => {
+    const container = document.getElementById('AthlonProductSection-{{ section.id }}');
+    if (!container) return;
+
+    // 1. INJEÇÃO DO "LIVE PULSE" & MARCA (Design de Urgência Premium)
+    const injectTopTriggers = () => {
+      const title = container.querySelector('h1');
+      const vendorName = container.getAttribute('data-vendor');
+      
+      if (title && !container.querySelector('.athlon-live-header')) {
+        const headerHTML = `
+          <div class="athlon-live-header">
+            ${vendorName ? `<span class="cyber-badge">${vendorName}</span>` : ''}
+            <div class="live-pulse-indicator">
+              <span class="pulse-dot"></span>
+              <span class="pulse-text">Estoque Liberado • Envio Imediato</span>
+            </div>
+          </div>
+        `;
+        title.insertAdjacentHTML('beforebegin', headerHTML);
+      }
+    };
+
+    // 2. INJEÇÃO DE ESTRELAS DE AVALIAÇÃO (Fictícias)
+    const injectReviewStars = () => {
+      const title = container.querySelector('h1');
+      if (title && !container.querySelector('.athlon-reviews-badge')) {
+        const starSVG = `<svg viewBox="0 0 24 24" fill="#00e676" stroke="#00e676" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"></polygon></svg>`;
+        const reviewsHTML = `
+          <div class="athlon-reviews-badge">
+            <div class="stars">${starSVG.repeat(5)}</div>
+            <span class="reviews-text">4.9/5 (184 avaliações)</span>
+          </div>
+        `;
+        title.insertAdjacentHTML('afterend', reviewsHTML);
+      }
+    };
+
+    // 3. INJEÇÃO DE TRUST PILLS (Estilo App Nativa, Glassmorphism)
+    const injectTrustPills = () => {
+      const buyForm = container.querySelector('.product-form') || container.querySelector('form[action*="/cart/add"]');
+      if (buyForm && !container.querySelector('.athlon-trust-pills')) {
+        const pillsHTML = `
+          <div class="athlon-trust-pills">
+            <div class="trust-pill"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect><path d="M7 11V7a5 5 0 0 1 10 0v4"></path></svg> Compra Segura</div>
+            <div class="trust-pill"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"></polyline></svg> Envio Expresso</div>
+            <div class="trust-pill"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="12 2 22 8.5 22 15.5 12 22 2 15.5 2 8.5"></polygon><line x1="12" y1="22" x2="12" y2="15.5"></line><polyline points="22 8.5 12 15.5 2 8.5"></polyline><polyline points="2 15.5 12 9 22 15.5"></polyline><line x1="12" y1="2" x2="12" y2="9"></line></svg> 100% Original</div>
+          </div>
+        `;
+        buyForm.insertAdjacentHTML('afterend', pillsHTML);
+      }
+    };
+
+    // 4. INJEÇÃO DO MÓDULO DE FRETE FRENET (Cyber UI)
+    const injectShippingCalculator = () => {
+      const trustPills = container.querySelector('.athlon-trust-pills');
+      if (trustPills && !container.querySelector('.athlon-shipping-calculator')) {
+        const shippingHTML = `
+          <div class="athlon-shipping-calculator">
+            <div class="shipping-header">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="1" y="3" width="15" height="13"></rect><polygon points="16 8 20 8 23 11 23 16 16 16 16 8"></polygon><circle cx="5.5" cy="18.5" r="2.5"></circle><circle cx="18.5" cy="18.5" r="2.5"></circle></svg>
+              <span>Simular Frete e Prazos</span>
+            </div>
+            <div class="shipping-input-group">
+              <input type="text" id="frenet-cep" name="frenet-cep" placeholder="Digite seu CEP" maxlength="9" oninput="this.value = this.value.replace(/[^0-9]/g, '').replace(/^(\\d{5})(\\d)/, '$1-$2');">
+              <button type="button" id="btn-frenet-calculate">OK</button>
+            </div>
+            <div id="frenet-shipping-container" class="frenet-results-placeholder"></div>
+          </div>
+        `;
+        trustPills.insertAdjacentHTML('afterend', shippingHTML);
+      }
+    };
+
+    // Executar injeções
+    const runInjections = () => {
+      injectTopTriggers();
+      injectReviewStars();
+      injectTrustPills();
+      injectShippingCalculator();
+    };
+
+    runInjections();
+
+    if (window.Shopify && Shopify.designMode) {
+      document.addEventListener('shopify:section:load', runInjections);
+      document.addEventListener('shopify:block:select', runInjections);
+    }
+
+    // 5. STICKY APP DOCK LOGIC
+    class StickyAddToCart extends HTMLElement {
+      connectedCallback() {
+        this.btn = this.querySelector('#StickySubmitBtn');
+        this.bar = this.querySelector('.app-dock-glass');
+        if (this.btn) this.btn.addEventListener('click', (e) => this.submitForm(e));
+        window.addEventListener('scroll', () => window.requestAnimationFrame(() => this.checkScroll()), { passive: true });
+      }
+
+      submitForm(e) {
+        e.preventDefault();
+        const mainBtn = document.querySelector('form[action*="/cart/add"] button[name="add"], .product-form__submit');
+        if (mainBtn) {
+          this.btn.classList.add('is-processing');
+          mainBtn.click();
+          setTimeout(() => this.btn.classList.remove('is-processing'), 2000);
+        }
+      }
+
+      checkScroll() {
+        if (!this.bar) return;
+        if (window.scrollY > 550) {
+          this.bar.setAttribute('data-stuck', 'true');
+        } else {
+          this.bar.setAttribute('data-stuck', 'false');
+        }
+      }
+    }
+    if (!customElements.get('sticky-add-to-cart')) customElements.define('sticky-add-to-cart', StickyAddToCart);
+  });
+</script>
+
+<style>
+  /* ==========================================================
+     ATHLON CYBER-GLASS UI: O Padrão Oculto
+  ========================================================== */
+
+  /* Reset Essencial do Tema */
+  .athlon-cyber-engine, .athlon-cyber-engine [class*="product__info"], .athlon-cyber-engine [class*="product__media"] {
+    background-color: #000000 !important;
+  }
+  .athlon-cyber-engine { padding-top: 30px; padding-bottom: 80px; }
+
+  /* CABEÇALHO CYBER (Badge + Pulse Indicator) */
+  .athlon-live-header {
+    display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 12px; margin-bottom: 16px;
+    animation: fadeIn 0.6s ease-out forwards;
+  }
+  .cyber-badge {
+    background: rgba(0, 230, 118, 0.1); border: 1px solid rgba(0, 230, 118, 0.4); color: #00e676;
+    font-size: 0.75rem; font-weight: 800; text-transform: uppercase; letter-spacing: 0.15em; padding: 4px 12px; border-radius: 4px;
+    box-shadow: 0 0 15px rgba(0, 230, 118, 0.15);
+  }
+  .live-pulse-indicator {
+    display: flex; align-items: center; gap: 8px; background: rgba(255,255,255,0.03); padding: 4px 12px; border-radius: 20px; border: 1px solid rgba(255,255,255,0.05);
+  }
+  .pulse-dot {
+    width: 8px; height: 8px; background-color: #00e676; border-radius: 50%;
+    box-shadow: 0 0 8px #00e676; animation: cyberPulse 2s infinite;
+  }
+  .pulse-text { color: rgba(255,255,255,0.8); font-size: 0.7rem; font-weight: 600; text-transform: uppercase; letter-spacing: 0.05em; }
+
+  @keyframes cyberPulse { 0% { box-shadow: 0 0 0 0 rgba(0, 230, 118, 0.7); } 70% { box-shadow: 0 0 0 6px rgba(0, 230, 118, 0); } 100% { box-shadow: 0 0 0 0 rgba(0, 230, 118, 0); } }
+  @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+
+  /* TIPOGRAFIA & PREÇO (High Contrast) */
+  .athlon-cyber-engine h1 { color: #ffffff !important; font-weight: 800 !important; letter-spacing: -0.02em !important; line-height: 1.1 !important; font-size: clamp(2rem, 3.5vw, 2.6rem) !important; margin-top: 0; }
+  .athlon-cyber-engine p, .athlon-cyber-engine .rte { color: rgba(255, 255, 255, 0.6) !important; line-height: 1.6 !important; font-size: 0.95rem !important; }
+  .athlon-cyber-engine .price { color: #00e676 !important; font-weight: 800 !important; font-size: clamp(2rem, 3vw, 2.6rem) !important; text-shadow: 0 0 30px rgba(0, 230, 118, 0.2) !important; }
+  .athlon-cyber-engine .price__container * { color: inherit !important; }
+
+  /* ESTRELAS DE AVALIAÇÃO */
+  .athlon-reviews-badge {
+    display: flex; align-items: center; gap: 8px; margin-top: 10px; margin-bottom: 24px;
+  }
+  .athlon-reviews-badge .stars { display: flex; gap: 4px; }
+  .athlon-reviews-badge .stars svg { width: 18px; height: 18px; filter: drop-shadow(0 0 6px rgba(0, 230, 118, 0.4)); }
+  .athlon-reviews-badge .reviews-text { color: rgba(255,255,255,0.7); font-size: 0.85rem; font-weight: 600; }
+
+  /* SELETORES CYBERNETICS (Tamanho/Sabor) */
+  .athlon-cyber-engine fieldset.product-form__input label, .athlon-cyber-engine .variant-picker label {
+    background: rgba(255,255,255,0.02) !important; color: rgba(255,255,255,0.6) !important; border: 1px solid rgba(255,255,255,0.08) !important;
+    border-radius: 8px !important; font-weight: 600 !important; transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1) !important; position: relative; overflow: hidden;
+  }
+  .athlon-cyber-engine fieldset.product-form__input input[type="radio"]:checked + label {
+    background: rgba(0, 230, 118, 0.08) !important; border-color: #00e676 !important; color: #00e676 !important; box-shadow: inset 0 0 15px rgba(0,230,118,0.1), 0 0 10px rgba(0,230,118,0.2) !important;
+  }
+
+  /* 💎 O HYPER-CTA NATIVO (Botão Principal) */
+  .athlon-cyber-engine button[name="add"], .athlon-cyber-engine .product-form__submit {
+    position: relative; overflow: hidden; background: #00e676 !important; color: #000 !important; border: none !important; border-radius: 8px !important;
+    font-weight: 900 !important; font-size: 1.1rem !important; text-transform: uppercase !important; letter-spacing: 0.05em !important;
+    height: 64px !important; width: 100% !important; display: flex !important; align-items: center !important; justify-content: center !important;
+    box-shadow: 0 10px 30px rgba(0, 230, 118, 0.3), inset 0 2px 0 rgba(255,255,255,0.4) !important; cursor: pointer; transition: transform 0.2s, filter 0.2s;
+    animation: ctaBreathe 3s ease-in-out infinite alternate;
+  }
+  @keyframes ctaBreathe { 0% { box-shadow: 0 10px 30px rgba(0, 230, 118, 0.2), inset 0 2px 0 rgba(255,255,255,0.4); } 100% { box-shadow: 0 10px 45px rgba(0, 230, 118, 0.5), inset 0 2px 0 rgba(255,255,255,0.5); } }
+  
+  .athlon-cyber-engine button[name="add"]::after {
+    content: ''; position: absolute; top: 0; left: -150%; width: 50%; height: 100%; background: linear-gradient(90deg, transparent, rgba(255,255,255,0.5), transparent);
+    transform: skewX(-25deg); animation: lightSweep 4s infinite;
+  }
+  @keyframes lightSweep { 0% { left: -150%; } 20% { left: 150%; } 100% { left: 150%; } }
+  .athlon-cyber-engine button[name="add"]:hover { transform: scale(1.02) !important; filter: brightness(1.1) !important; }
+
+  /* TRUST PILLS (Glassmorphism Flexível) */
+  .athlon-trust-pills { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 24px; }
+  .trust-pill {
+    flex: 1 1 auto; display: flex; align-items: center; justify-content: center; gap: 8px; background: rgba(255,255,255,0.03);
+    border: 1px solid rgba(255,255,255,0.06); padding: 12px 16px; border-radius: 8px; color: rgba(255,255,255,0.8);
+    font-size: 0.75rem; font-weight: 600; text-transform: uppercase; backdrop-filter: blur(5px);
+  }
+  .trust-pill svg { width: 18px; height: 18px; color: #00e676; }
+
+  /* CÁLCULO DE FRETE FRENET (Cyber UI) */
+  .athlon-shipping-calculator {
+    margin-top: 20px; padding: 20px; background: rgba(255,255,255,0.02);
+    border: 1px solid rgba(255,255,255,0.06); border-radius: 12px; backdrop-filter: blur(5px);
+  }
+  .shipping-header { display: flex; align-items: center; gap: 10px; margin-bottom: 14px; }
+  .shipping-header svg { width: 20px; height: 20px; color: #00e676; }
+  .shipping-header span { color: #fff; font-weight: 600; font-size: 0.9rem; text-transform: uppercase; letter-spacing: 0.05em; }
+  .shipping-input-group { display: flex; gap: 8px; }
+  .shipping-input-group input {
+    flex-grow: 1; background: rgba(0,0,0,0.5); border: 1px solid rgba(255,255,255,0.1);
+    color: #fff; padding: 12px 16px; border-radius: 8px; font-size: 0.95rem; font-family: inherit;
+    outline: none; transition: border-color 0.3s;
+  }
+  .shipping-input-group input:focus { border-color: #00e676; }
+  .shipping-input-group button {
+    background: #00e676; color: #000; font-weight: 800; border: none; border-radius: 8px;
+    padding: 0 24px; cursor: pointer; transition: all 0.2s; text-transform: uppercase; letter-spacing: 0.05em;
+  }
+  .shipping-input-group button:hover { background: #00ff82; transform: scale(1.02); }
+  .frenet-results-placeholder { margin-top: 16px; font-size: 0.85rem; color: rgba(255,255,255,0.6); }
+
+  /* ==========================================================
+     📱 MOBILE APP DOCK (A Magia da Conversão Mobile)
+  ========================================================== */
+  .app-dock-glass {
+    position: fixed; bottom: 20px; left: 50%; transform: translateX(-50%) translateY(150%); opacity: 0; z-index: 99999;
+    width: 90%; max-width: 600px; background: rgba(10, 10, 10, 0.85); backdrop-filter: blur(16px); -webkit-backdrop-filter: blur(16px);
+    border: 1px solid rgba(255, 255, 255, 0.1); border-radius: 20px; box-shadow: 0 20px 50px rgba(0,0,0,0.8);
+    padding: 16px 20px; display: flex; align-items: center; justify-content: space-between; gap: 20px;
+    transition: transform 0.5s cubic-bezier(0.34, 1.56, 0.64, 1), opacity 0.4s ease; pointer-events: none;
+  }
+  .app-dock-glass[data-stuck='true'] { transform: translateX(-50%) translateY(0); opacity: 1; pointer-events: auto; }
+  
+  .dock-meta { flex-grow: 1; display: flex; flex-direction: column; }
+  .dock-title { color: rgba(255,255,255,0.6); font-size: 0.75rem; font-weight: 600; text-transform: uppercase; margin: 0 0 4px 0; letter-spacing: 0.05em; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 180px;}
+  .dock-price-zone .price { color: #00e676 !important; font-size: 1.3rem !important; font-weight: 800 !important; margin: 0 !important; line-height: 1 !important;}
+  
+  .dock-action-btn {
+    position: relative; overflow: hidden; background: #00e676; color: #000; border: none; border-radius: 12px;
+    font-weight: 800; font-size: 0.9rem; padding: 0 28px; height: 50px; display: flex; align-items: center; justify-content: center;
+    box-shadow: 0 4px 15px rgba(0, 230, 118, 0.3); flex-shrink: 0; cursor: pointer; transition: transform 0.1s;
+  }
+  .dock-action-btn:active { transform: scale(0.95); }
+  .btn-sweep { position: absolute; top: 0; left: -100%; width: 50%; height: 100%; background: linear-gradient(90deg, transparent, rgba(255,255,255,0.6), transparent); transform: skewX(-20deg); animation: lightSweep 3s infinite; }
+
+  @media screen and (max-width: 749px) {
+    .app-dock-glass { bottom: 12px; width: 94%; padding: 14px 16px; border-radius: 16px; gap: 12px; }
+    .dock-title { max-width: 140px; font-size: 0.7rem; }
+    .dock-action-btn { padding: 0 20px; font-size: 0.85rem; height: 46px; }
+    .athlon-trust-pills { flex-direction: column; }
+    .live-pulse-indicator { width: 100%; justify-content: center; padding: 8px; }
+    .athlon-cyber-engine button[name="add"], .athlon-cyber-engine .product-form__submit { height: 56px !important; font-size: 1rem !important; }
+  }
+</style>
+
+{% schema %}
+{
+  "name": "Info Produto Athlon",
+  "blocks": [{ "type": "@app" }],
+  "disabled_on": { "groups": ["header", "footer"] },
+  "settings": [
+    { "type": "color", "id": "accent_color", "label": "Cor de Destaque (Neon)", "default": "#00e676" },
+    { "type": "checkbox", "id": "enable_sticky_add_to_cart", "label": "Habilitar Barra App Mobile", "default": true }
+  ],
+  "presets": [{ "name": "Info Produto Athlon" }]
+}
+{% endschema %}

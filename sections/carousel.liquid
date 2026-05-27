@@ -1,0 +1,360 @@
+<div class="athlon-carousel-wrapper section-background color-{{ section.settings.color_scheme }}" style="--hero-accent: {{ section.settings.accent_color | default: '#00e676' }};"></div>
+<div
+  class="
+    athlon-carousel-wrapper
+    section
+    section--{{ section.settings.section_width }}
+    color-{{ section.settings.color_scheme }}
+    section-carousel
+    spacing-style
+    gap-style
+  "
+  style="
+    {% render 'spacing-style', settings: section.settings %}
+    {% render 'gap-style', value: 12 %}
+    --hero-accent: {{ section.settings.accent_color | default: '#00e676' }};
+  "
+  data-testid="carousel-section"
+>
+  {% content_for 'block', type: 'group', id: 'static-header' %}
+
+  {% content_for 'block', type: '_carousel-content', id: 'static-carousel-content', closest.product: null %}
+</div>
+
+<style>
+  /* ==========================================================
+     ATHLON CAROUSEL - SAFE OVERRIDE
+     Estética premium focada apenas nos elementos corretos
+  ========================================================== */
+
+  /* 1. Fundo da Seção Inteira */
+  #shopify-section-{{ section.id }} .athlon-carousel-wrapper {
+    background-color: #050505 !important;
+  }
+
+  /* 2. Textos do Cabeçalho da Seção (Explorar Fórmulas) */
+  #shopify-section-{{ section.id }} [data-block-type="group"] h1,
+  #shopify-section-{{ section.id }} [data-block-type="group"] h2,
+  #shopify-section-{{ section.id }} [data-block-type="group"] h3 {
+    color: #ffffff !important;
+    font-weight: 700 !important;
+    letter-spacing: -0.02em !important;
+  }
+
+  /* 3. Estilização Direta e Segura dos Cards */
+  #shopify-section-{{ section.id }} [data-block-type="_card"] {
+    background-color: #0a0a0a !important; /* Cinza bem escuro para o card */
+    border: 1px solid rgba(255, 255, 255, 0.05) !important;
+    border-radius: 16px !important;
+    overflow: hidden !important;
+    padding-bottom: 1.5rem !important; /* Espaço para o texto respirar embaixo */
+    transition: transform 0.4s cubic-bezier(0.16, 1, 0.3, 1), border-color 0.4s ease, box-shadow 0.4s ease !important;
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+  }
+
+  /* Imagem do Card perfeitamente encaixada */
+  #shopify-section-{{ section.id }} [data-block-type="_card"] img {
+    border-radius: 16px 16px 0 0 !important; /* Arredonda só em cima */
+    width: 100% !important;
+    object-fit: cover !important;
+  }
+
+  /* Textos do Card (Título e Parágrafo) com espaçamento lateral (padding) */
+  #shopify-section-{{ section.id }} [data-block-type="_card"] [data-block-type="text"] {
+    padding: 0 1.5rem !important;
+    margin-top: 1rem !important;
+  }
+
+  #shopify-section-{{ section.id }} [data-block-type="_card"] h4,
+  #shopify-section-{{ section.id }} [data-block-type="_card"] h5 {
+    color: #ffffff !important;
+    font-weight: 700 !important;
+    margin: 0 0 0.5rem 0 !important;
+  }
+
+  #shopify-section-{{ section.id }} [data-block-type="_card"] p {
+    color: rgba(255, 255, 255, 0.6) !important;
+    font-size: 0.95rem !important;
+    line-height: 1.5 !important;
+    margin: 0 !important;
+  }
+
+  /* 4. Efeito Hover Neon nos Cards */
+  #shopify-section-{{ section.id }} [data-block-type="_card"]:hover {
+    transform: translateY(-8px) !important;
+    border-color: rgba(0, 230, 118, 0.4) !important; /* Borda neon mais visível */
+    box-shadow: 0 15px 30px rgba(0, 230, 118, 0.08) !important;
+  }
+
+  /* 5. Setas do Carrossel */
+  #shopify-section-{{ section.id }} button.slider-button,
+  #shopify-section-{{ section.id }} .carousel__navigation button {
+    background-color: #111111 !important;
+    border: 1px solid rgba(255, 255, 255, 0.15) !important;
+    color: #ffffff !important;
+    border-radius: 50% !important;
+    transition: all 0.3s ease !important;
+  }
+
+  #shopify-section-{{ section.id }} button.slider-button:hover,
+  #shopify-section-{{ section.id }} .carousel__navigation button:hover {
+    border-color: var(--hero-accent) !important;
+    color: var(--hero-accent) !important;
+    background-color: rgba(0, 230, 118, 0.05) !important;
+    transform: scale(1.05) !important;
+  }
+
+  #shopify-section-{{ section.id }} button.slider-button svg,
+  #shopify-section-{{ section.id }} .carousel__navigation button svg {
+    fill: currentColor !important;
+    stroke: currentColor !important;
+  }
+
+  /* Ajustes de margem da seção para igualar à Hero */
+  #shopify-section-{{ section.id }} .section--page-width {
+    padding-left: 4rem !important;
+    padding-right: 4rem !important;
+  }
+
+  @media screen and (max-width: 749px) {
+    #shopify-section-{{ section.id }} .section--page-width {
+      padding-left: 2.5rem !important;
+      padding-right: 2.5rem !important;
+    }
+  }
+</style>
+
+{% schema %}
+{
+  "name": "Carrossel Athlon",
+  "disabled_on": {
+    "groups": ["header", "footer"]
+  },
+  "blocks": [
+    { "type": "@theme" },
+    { "type": "group" },
+    { "type": "_carousel-content" },
+    { "type": "_card" },
+    { "type": "text" },
+    { "type": "image" }
+  ],
+  "settings": [
+    {
+      "type": "color",
+      "id": "accent_color",
+      "label": "Cor de Destaque (Neon)",
+      "default": "#00e676"
+    },
+    {
+      "type": "range",
+      "id": "columns",
+      "label": "Colunas no Desktop",
+      "min": 1,
+      "max": 8,
+      "step": 1,
+      "default": 4
+    },
+    {
+      "type": "select",
+      "id": "mobile_columns",
+      "label": "Colunas no Mobile",
+      "options": [
+        {
+          "value": "1",
+          "label": "1 Coluna"
+        },
+        {
+          "value": "2",
+          "label": "2 Colunas"
+        }
+      ],
+      "default": "1"
+    },
+    {
+      "type": "select",
+      "id": "section_width",
+      "label": "Largura da Seção",
+      "options": [
+        {
+          "value": "page-width",
+          "label": "Margens do Site"
+        },
+        {
+          "value": "full-width",
+          "label": "Tela Cheia"
+        }
+      ],
+      "default": "page-width"
+    },
+    {
+      "type": "range",
+      "id": "columns_gap",
+      "label": "Espaçamento entre Cards",
+      "min": 0,
+      "max": 100,
+      "step": 1,
+      "unit": "px",
+      "default": 16
+    },
+    {
+      "type": "color_scheme",
+      "id": "color_scheme",
+      "label": "Esquema de Cores",
+      "default": "scheme-1"
+    },
+    {
+      "type": "header",
+      "content": "Navegação"
+    },
+    {
+      "type": "select",
+      "id": "icons_style",
+      "label": "Estilo de Ícones",
+      "options": [
+        {
+          "value": "arrow",
+          "label": "Setas Padrão"
+        },
+        {
+          "value": "chevron",
+          "label": "Chevrons"
+        },
+        {
+          "value": "arrows_large",
+          "label": "Setas Grandes"
+        },
+        {
+          "value": "chevron_large",
+          "label": "Chevrons Grandes"
+        },
+        {
+          "value": "none",
+          "label": "Nenhum"
+        }
+      ],
+      "default": "arrow"
+    },
+    {
+      "type": "select",
+      "id": "icons_shape",
+      "label": "Fundo das Setas",
+      "options": [
+        {
+          "value": "none",
+          "label": "Nenhum"
+        },
+        {
+          "value": "circle",
+          "label": "Círculo"
+        },
+        {
+          "value": "square",
+          "label": "Quadrado"
+        }
+      ],
+      "default": "circle",
+      "visible_if": "{{ section.settings.icons_style != 'none' }}"
+    },
+    {
+      "type": "header",
+      "content": "Espaçamentos Internos"
+    },
+    {
+      "type": "range",
+      "id": "padding-block-start",
+      "label": "Espaço Superior (Top)",
+      "min": 0,
+      "max": 100,
+      "step": 1,
+      "unit": "px",
+      "default": 64
+    },
+    {
+      "type": "range",
+      "id": "padding-block-end",
+      "label": "Espaço Inferior (Bottom)",
+      "min": 0,
+      "max": 100,
+      "step": 1,
+      "unit": "px",
+      "default": 64
+    }
+  ],
+  "presets": [
+    {
+      "name": "Carrossel Athlon",
+      "category": "t:categories.storytelling",
+      "settings": {
+        "columns": 4,
+        "columns_gap": 16,
+        "padding-block-start": 64,
+        "padding-block-end": 64,
+        "icons_shape": "circle"
+      },
+      "blocks": {
+        "static-header": {
+          "type": "group",
+          "settings": {
+            "content_direction": "row",
+            "horizontal_alignment": "space-between",
+            "padding-block-end": 24
+          },
+          "blocks": {
+            "heading": {
+              "type": "text",
+              "settings": {
+                "text": "<h3>Explorar Fórmulas</h3>"
+              }
+            }
+          },
+          "block_order": ["heading"]
+        },
+        "static-carousel-content": {
+          "type": "_carousel-content",
+          "blocks": {
+            "card_1": {
+              "type": "_card",
+              "blocks": {
+                "image_1": { "type": "image" },
+                "heading_1": { "type": "text", "settings": { "text": "<h5>Pré-Treino</h5>" } },
+                "text_1": { "type": "text", "settings": { "text": "<p>Energia explosiva e foco extremo.</p>" } }
+              },
+              "block_order": ["image_1", "heading_1", "text_1"]
+            },
+            "card_2": {
+              "type": "_card",
+              "blocks": {
+                "image_2": { "type": "image" },
+                "heading_2": { "type": "text", "settings": { "text": "<h5>Whey Protein</h5>" } },
+                "text_2": { "type": "text", "settings": { "text": "<p>Absorção rápida e máxima pureza.</p>" } }
+              },
+              "block_order": ["image_2", "heading_2", "text_2"]
+            },
+            "card_3": {
+              "type": "_card",
+              "blocks": {
+                "image_3": { "type": "image" },
+                "heading_3": { "type": "text", "settings": { "text": "<h5>Creatina</h5>" } },
+                "text_3": { "type": "text", "settings": { "text": "<p>Força, resistência e volume celular.</p>" } }
+              },
+              "block_order": ["image_3", "heading_3", "text_3"]
+            },
+            "card_4": {
+              "type": "_card",
+              "blocks": {
+                "image_4": { "type": "image" },
+                "heading_4": { "type": "text", "settings": { "text": "<h5>Multivitamínico</h5>" } },
+                "text_4": { "type": "text", "settings": { "text": "<p>Suporte completo para imunidade e saúde.</p>" } }
+              },
+              "block_order": ["image_4", "heading_4", "text_4"]
+            }
+          },
+          "block_order": ["card_1", "card_2", "card_3", "card_4"]
+        }
+      }
+    }
+  ]
+}
+{% endschema %}

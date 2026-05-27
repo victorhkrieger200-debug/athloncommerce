@@ -381,8 +381,8 @@
     z-index: 5;
     display: flex;
     width: 100%;
-    /* AQUI: Aumentamos as margens laterais de 2rem para 4rem (esquerda e direita) */
-    padding: 8rem 4rem 4rem 4rem;
+    align-items: flex-end;
+    padding: clamp(5rem, 12vw, 8rem) clamp(1.25rem, 4vw, 4rem) 2rem;
     pointer-events: none;
     flex-grow: 1;
   }
@@ -395,13 +395,20 @@
   }
 
   .hero-inner {
-    max-width: 650px;
+    max-width: 720px;
     display: flex;
     flex-direction: column;
-    gap: 1.5rem;
+    gap: 1.25rem;
     align-items: flex-start;
     text-align: left;
     pointer-events: auto;
+    padding: clamp(1rem, 2.4vw, 1.35rem);
+    border: 1px solid color-mix(in srgb, var(--color-foreground) 14%, transparent);
+    border-radius: 28px;
+    background: linear-gradient(145deg, color-mix(in srgb, var(--color-background) 68%, transparent), color-mix(in srgb, var(--color-background) 34%, transparent));
+    box-shadow: 0 18px 40px rgba(0, 0, 0, 0.28);
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
   }
 
   /* --- TYPOGRAPHY & COLORS MATCHING THE IMAGE --- */
@@ -416,21 +423,24 @@
 
   .hero-h1 {
     font-size: clamp(3rem, 6vw, 5rem);
-    line-height: 1.05; margin: 0;
-    font-weight: 700;
-    color: #ffffff;
-    letter-spacing: -0.02em;
+    line-height: 1.02;
+    margin: 0;
+    font-weight: 800;
+    color: var(--color-foreground);
+    letter-spacing: -0.03em;
   }
-  .hero-h1__muted { 
-    color: rgba(255, 255, 255, 0.4); 
-    font-style: normal; 
+  .hero-h1__muted {
+    color: color-mix(in srgb, var(--color-foreground) 55%, transparent);
+    font-style: normal;
   }
   .hero-h1__dot { color: var(--hero-accent); }
 
   .hero-sub {
-    font-size: 1.1rem; line-height: 1.6; 
-    color: rgba(255, 255, 255, 0.6); 
-    margin: 0; max-width: 90%;
+    font-size: clamp(1rem, 1.5vw, 1.1rem);
+    line-height: 1.65;
+    color: color-mix(in srgb, var(--color-foreground) 72%, transparent);
+    margin: 0;
+    max-width: 90%;
   }
 
   /* --- BUTTONS --- */
@@ -452,9 +462,10 @@
   }
   
   .btn--primary {
-    background: var(--hero-accent); 
-    color: #000000; 
-    border: none;
+    background: var(--hero-accent);
+    color: #06111A;
+    border: 1px solid transparent;
+    box-shadow: 0 10px 24px color-mix(in srgb, var(--hero-accent) 25%, transparent);
   }
   .btn--primary:hover { 
     filter: brightness(1.1); 
@@ -462,9 +473,9 @@
   }
   
   .btn--ghost {
-    background: transparent;
-    border: 1px solid rgba(255, 255, 255, 0.15); 
-    color: #ffffff;
+    background: color-mix(in srgb, var(--color-background) 18%, transparent);
+    border: 1px solid color-mix(in srgb, var(--color-foreground) 18%, transparent);
+    color: var(--color-foreground);
   }
   .btn--ghost:hover { 
     background: rgba(255, 255, 255, 0.1); 

@@ -100,8 +100,8 @@
   /* Estilização Avançada dos Cards de Produto Nativos */
   #shopify-section-{{ section.id }} .resource-list__item,
   #shopify-section-{{ section.id }} [data-block-type="_product-card"] {
-    background-color: #0d0d0d !important; /* Caixa interna grafite escuro */
-    border: 1px solid rgba(255, 255, 255, 0.05) !important;
+    background: linear-gradient(180deg, color-mix(in srgb, var(--color-background) 90%, #000 10%), color-mix(in srgb, var(--color-background) 74%, #000 26%)) !important;
+    border: 1px solid color-mix(in srgb, var(--color-foreground) 12%, transparent) !important;
     border-radius: 16px !important;
     overflow: hidden !important;
     padding: 12px !important;
@@ -119,7 +119,7 @@
   /* Tipografia: Títulos dos Produtos */
   #shopify-section-{{ section.id }} [class*="product-title"] *,
   #shopify-section-{{ section.id }} [class*="title"] a {
-    color: #ffffff !important;
+    color: var(--color-foreground) !important;
     font-weight: 600 !important;
     letter-spacing: -0.01em !important;
     text-decoration: none !important;
@@ -136,7 +136,7 @@
   /* Trata preços antigos riscados (Sale mode) */
   #shopify-section-{{ section.id }} s,
   #shopify-section-{{ section.id }} [class*="compare"] {
-    color: rgba(255, 255, 255, 0.3) !important;
+    color: color-mix(in srgb, var(--color-foreground) 45%, transparent) !important;
     font-weight: 400 !important;
     font-size: 0.9em !important;
   }
